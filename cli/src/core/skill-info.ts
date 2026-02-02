@@ -11,7 +11,8 @@ import type { SkillMetadata, SkillInstallation, AgentType } from '../types/index
  * Handles nested metadata field as key-value pairs.
  */
 function parseFrontmatter(content: string): SkillMetadata | null {
-  const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  // Handle both LF and CRLF line endings
+  const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterMatch) {
     return null;
   }
@@ -75,14 +76,14 @@ function parseFrontmatter(content: string): SkillMetadata | null {
     }
   }
 
-  // name and description are required
-  if (!name || !description) {
+  // only name is required
+  if (!name) {
     return null;
   }
 
   return {
     name,
-    description,
+    description: description || undefined,
     license,
     compatibility,
     metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
@@ -91,13 +92,26 @@ function parseFrontmatter(content: string): SkillMetadata | null {
 }
 
 /**
+ * Find SKILL.md file in a directory (case-insensitive)
+ */
+async function findSkillMdPath(dirPath: string): Promise<string | null> {
+  try {
+    const entries = await fs.readdir(dirPath);
+    const skillMd = entries.find(e => e.toLowerCase() === 'skill.md');
+    return skillMd ? path.join(dirPath, skillMd) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Check if a directory is a valid skill.
  * A valid skill must contain a SKILL.md with required frontmatter (name, description).
  */
 export async function isValidSkillDirectory(dirPath: string): Promise<boolean> {
-  const skillMdPath = path.join(dirPath, 'SKILL.md');
+  const skillMdPath = await findSkillMdPath(dirPath);
 
-  if (!await fs.pathExists(skillMdPath)) {
+  if (!skillMdPath) {
     return false;
   }
 
@@ -125,7 +139,7 @@ export async function findSkillDirectories(searchPath: string): Promise<string[]
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
 
-        if (entry.isFile() && entry.name === 'SKILL.md') {
+        if (entry.isFile() && entry.name.toLowerCase() === 'skill.md') {
           // Found a SKILL.md - check if it's valid
           if (await isValidSkillDirectory(dir)) {
             skills.push(dir);
@@ -149,7 +163,11 @@ export async function findSkillDirectories(searchPath: string): Promise<string[]
  * The canonical skill name comes from the frontmatter, not the folder name.
  */
 export async function readSkillMetadata(skillPath: string): Promise<SkillMetadata | null> {
-  const skillMdPath = path.join(skillPath, 'SKILL.md');
+  const skillMdPath = await findSkillMdPath(skillPath);
+
+  if (!skillMdPath) {
+    return null;
+  }
 
   try {
     const content = await fs.readFile(skillMdPath, 'utf-8');

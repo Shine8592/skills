@@ -19,8 +19,8 @@ export interface SunConfig {
 export interface SkillMetadata {
   /** Required: Max 64 chars, lowercase letters, numbers, hyphens only */
   name: string;
-  /** Required: Max 1024 chars, describes what the skill does */
-  description: string;
+  /** Optional: Max 1024 chars, describes what the skill does */
+  description?: string;
   /** Optional: License name or reference to bundled license file */
   license?: string;
   /** Optional: Max 500 chars, environment requirements */
