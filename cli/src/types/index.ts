@@ -57,6 +57,24 @@ export interface CommandFlags {
   gemini?: boolean;
 }
 
+export interface PushFlags {
+  userId: string;
+  token: string;
+  version?: string;
+  description?: string;
+}
+
+export interface SkillVersion {
+  id: string;
+  skill_name: string;
+  version: string;
+  content_hash: string;
+  created_at: string;
+  author: string;
+  description?: string;
+  zip_path?: string;
+}
+
 export interface DetectedAgent {
   agent: AgentConfig;
   path: string;

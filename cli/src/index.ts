@@ -13,8 +13,11 @@ import { listCommand } from './commands/list';
 import { listRegistryCommand } from './commands/list-registry';
 import { showCommand } from './commands/show';
 import { configCommand } from './commands/config';
+import { pullCommand } from './commands/pull';
+import { versionsCommand } from './commands/versions';
+import { pushCommand } from './commands/push';
 import { suggestCommand, getValidCommands } from './utils/fuzzy-match';
-import type { CommandFlags } from './types/index';
+import type { CommandFlags, PushFlags } from './types/index';
 
 const program = new Command();
 
@@ -118,6 +121,52 @@ program
   .action(async () => {
     try {
       await configCommand();
+    } catch (error) {
+      handleCommandError(error);
+    }
+  });
+
+// Pull command
+const pull = program
+  .command('pull [skill]')
+  .description('Pull all skills (or a specific skill) from the registry')
+  .option('--global', 'Install to global agent config (~/.claude/, ~/.codex/, etc.)');
+
+for (const agent of SUPPORTED_AGENTS) {
+  pull.option(`--${agent.flag}`, `Install to ${agent.name}`);
+}
+
+pull.action(async (skill: string | undefined, options: CommandFlags) => {
+  try {
+    await pullCommand(skill, options);
+  } catch (error) {
+    handleCommandError(error);
+  }
+});
+
+// Versions command
+program
+  .command('versions <skill>')
+  .description('List all versions of a skill from the registry')
+  .action(async (skill: string) => {
+    try {
+      await versionsCommand(skill);
+    } catch (error) {
+      handleCommandError(error);
+    }
+  });
+
+// Push command
+program
+  .command('push <path>')
+  .description('Push a skill to the registry (requires authentication)')
+  .requiredOption('--user-id <id>', 'Your user ID for authentication')
+  .requiredOption('--token <token>', 'Your auth token')
+  .option('--version <version>', 'Explicit version string (e.g., 1.0.0)')
+  .option('--description <description>', 'Description override for the skill')
+  .action(async (skillPath: string, options: PushFlags) => {
+    try {
+      await pushCommand(skillPath, options);
     } catch (error) {
       handleCommandError(error);
     }

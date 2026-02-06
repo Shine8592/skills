@@ -1,7 +1,7 @@
 import type { AgentConfig } from './types/index';
 
 /** Available CLI commands */
-export const COMMANDS = ['add', 'remove', 'list', 'show', 'config'] as const;
+export const COMMANDS = ['add', 'remove', 'list', 'show', 'config', 'pull', 'versions', 'push'] as const;
 
 /** Supported AI agents */
 export const AGENTS: AgentConfig[] = [
