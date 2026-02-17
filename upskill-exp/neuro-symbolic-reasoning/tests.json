@@ -1,0 +1,22 @@
+[
+  {
+    "input": "How should I approach combining an LLM with a symbolic solver for logical reasoning tasks? What specific pipeline architecture would you recommend?",
+    "expected": {"contains": "self-refine"}
+  },
+  {
+    "input": "What are the tradeoffs between using Z3 versus Prover9 for a neuro-symbolic system that needs to handle both first-order logic and constraint satisfaction?",
+    "expected": {"contains": "first-order"}
+  },
+  {
+    "input": "Implement a Python function using Z3 to solve an AR-LSAT style problem: Given 5 people (Alice, Bob, Carol, Dave, Eve) seated in a row, Alice cannot sit next to Bob, Carol must sit in an even position, and Dave must sit before Eve. Find all valid seating arrangements.",
+    "expected": {"contains": "EnumSort"}
+  },
+  {
+    "input": "Write a complete Python neuro-symbolic pipeline that takes a natural language FOL problem, uses an LLM to formulate it as a Prover9 program with the ::: annotation format, runs the solver via NLTK, and implements a self-refinement loop that retries up to 3 times on solver errors.",
+    "expected": {"contains": ":::"}
+  },
+  {
+    "input": "Implement a prove_fol function using NLTK's Prover9 that returns a tri-state result: True if the goal is provable, False if the negation is provable, and Unknown otherwise. Include proper error handling for solver timeouts.",
+    "expected": {"contains": "Unknown"}
+  }
+]
